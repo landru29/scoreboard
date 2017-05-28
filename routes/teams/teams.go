@@ -126,7 +126,14 @@ func DefineRoutes(router *gin.Engine) (teamGroup *gin.RouterGroup, identifiedTea
 					return
 				}
 
-				file, header, err := c.Request.FormFile("upload")
+				file, header, err := c.Request.FormFile("logo")
+				if err != nil {
+					c.JSON(http.StatusBadRequest, gin.H{
+						"message": "An error occured",
+						"error":   err.Error(),
+					})
+					return
+				}
 				if file == nil || header == nil {
 					c.JSON(http.StatusBadRequest, gin.H{
 						"message": "You must specify a file",

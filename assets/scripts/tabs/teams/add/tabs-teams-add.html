@@ -1,0 +1,25 @@
+<form name="teamForm" data-ng-submit="TeamAddCtrl.addTeam()">
+    <div class="form-group row">
+        <div class="col-md-6">
+            <label for="name">Name</label>
+            <input type="text" id="name" class="form-control"data-ng-model="TeamAddCtrl.team.name">
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-md-6">
+            <label for="color">Color</label>
+            <input type="text" id="color" class="form-control" data-ng-model="TeamAddCtrl.team.color">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <button type="submit" class="btn btn-primary">
+                <i class="fa fa-check" aria-hidden="true"></i>
+                <span>Create</span>
+            </button>
+        </div>
+    </div>
+</form>
+

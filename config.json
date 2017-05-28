@@ -1,5 +1,6 @@
 {
     "api_host": "my host",
     "api_port": "3000",
-    "api_protocol": "http"
+    "api_protocol": "http",
+    "sqlite_file": "./database.db"
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/landru29/scoreboard/database"
 	"github.com/landru29/scoreboard/routes"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -21,9 +22,22 @@ var mainCommand = &cobra.Command{
 		err := viper.ReadInConfig()
 		if err != nil {
 			fmt.Println(err.Error())
+			return
 		}
 
 		// Application startup here
+		_, err = database.OpenDatabase()
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+
+		err = database.InitDatabase()
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+
 		router := routes.DefineRoutes()
 		router.Run(":" + viper.GetString("api_port"))
 	},
@@ -35,10 +49,12 @@ func init() {
 	flags.String("api-host", "your-api-host", "API host")
 	flags.String("api-port", "3000", "API port")
 	flags.String("api-protocol", "http", "API protocol")
+	flags.String("sqlite-file", "./database.db", "Database")
 
 	viper.BindPFlag("api_host", flags.Lookup("api-host"))
 	viper.BindPFlag("api_port", flags.Lookup("api-port"))
 	viper.BindPFlag("api_protocol", flags.Lookup("api-protocol"))
+	viper.BindPFlag("sqlite_file", flags.Lookup("sqlite-file"))
 }
 
 func main() {

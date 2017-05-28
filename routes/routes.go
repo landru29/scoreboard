@@ -24,8 +24,8 @@ func DefineRoutes() *gin.Engine {
 
 	//router.Static("/scoreboard", "./assets")
 
-	teams.DefineRoutes(router)
-	players.DefineRoutes(router)
+	_, identifiedTeamGroup := teams.DefineRoutes(router)
+	players.DefineRoutes(identifiedTeamGroup)
 
 	return router
 }

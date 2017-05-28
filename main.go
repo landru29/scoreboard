@@ -50,11 +50,13 @@ func init() {
 	flags.String("api-port", "3000", "API port")
 	flags.String("api-protocol", "http", "API protocol")
 	flags.String("sqlite-file", "./database.db", "Database")
+	flags.String("logo-dir", "./logos", "Logo folder")
 
 	viper.BindPFlag("api_host", flags.Lookup("api-host"))
 	viper.BindPFlag("api_port", flags.Lookup("api-port"))
 	viper.BindPFlag("api_protocol", flags.Lookup("api-protocol"))
 	viper.BindPFlag("sqlite_file", flags.Lookup("sqlite-file"))
+	viper.BindPFlag("logo_dir", flags.Lookup("logo-dir"))
 }
 
 func main() {

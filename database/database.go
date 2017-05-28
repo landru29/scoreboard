@@ -2,7 +2,9 @@ package database
 
 import (
 	"database/sql"
+	"net/http"
 
+	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/spf13/viper"
 )
@@ -53,4 +55,15 @@ func InitDatabase() (err error) {
 	}
 
 	return
+}
+
+//CheckError check errors from database
+func CheckError(c *gin.Context, err error, message string) error {
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": message,
+			"error":   err.Error(),
+		})
+	}
+	return err
 }

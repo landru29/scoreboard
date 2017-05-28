@@ -1,12 +1,18 @@
 package teams
 
 import (
+	"errors"
+	"fmt"
+	"io"
+	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/landru29/scoreboard/database"
+	"github.com/spf13/viper"
 )
 
 // Team define to model of a team
@@ -28,74 +34,149 @@ func teamToGin(team Team) gin.H {
 	}
 }
 
-func checkError(c *gin.Context, err error, message string) error {
+//GetTeamByID read a team
+func GetTeamByID(id int64) (team Team, err error) {
+	counter := 0
+	rows, err := database.Database.Query("SELECT id, name, color, logo, created FROM team WHERE id=?", id)
+
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": message,
-			"error":   err.Error(),
-		})
+		return
 	}
-	return err
+
+	for rows.Next() {
+		err = rows.Scan(&team.ID, &team.Name, &team.Color, &team.Logo, &team.Created)
+		if err != nil {
+			return
+		}
+		counter++
+	}
+
+	if counter != 1 {
+		err = errors.New("Not found")
+		return
+	}
+
+	rows.Close()
+	return
 }
 
 // DefineRoutes define all the teams routes
 func DefineRoutes(router *gin.Engine) (teamGroup *gin.RouterGroup, identifiedTeamGroup *gin.RouterGroup) {
 	teamGroup = router.Group("/teams")
 	{
+		/**
+		 * List all teams
+		 * GET /teams
+		 */
 		teamGroup.GET("/", func(c *gin.Context) {
 			var teams []Team
 			rows, err := database.Database.Query("SELECT id, name, color, logo, created FROM team")
-			if checkError(c, err, "Could not read the database (team)") != nil {
+			if database.CheckError(c, err, "Could not read the database (team)") != nil {
 				return
 			}
 
 			for rows.Next() {
 				team := Team{}
 				err = rows.Scan(&team.ID, &team.Name, &team.Color, &team.Logo, &team.Created)
-				if checkError(c, err, "Could not fetch data from the database (team)") != nil {
+				if database.CheckError(c, err, "Could not fetch data from the database (team)") != nil {
 					return
 				}
 				teams = append(teams, team)
 			}
 
-			rows.Close() //good habit to close
+			rows.Close()
 
 			c.JSON(http.StatusOK, teams)
 		})
 
 		identifiedTeamGroup = teamGroup.Group("/:teamId")
 		{
+			/**
+			 * Detail of a team
+			 * GET /teams/:teamId
+			 */
 			identifiedTeamGroup.GET("/", func(c *gin.Context) {
-				var teams []Team
 
 				id, err := strconv.Atoi(c.Param("teamId"))
-				if checkError(c, err, "Bad format of ID") != nil {
+				if database.CheckError(c, err, "Bad format of ID") != nil {
 					return
 				}
 
-				rows, err := database.Database.Query("SELECT id, name, color, logo, created FROM team WHERE id=?", id)
-
-				if checkError(c, err, "Could not read the database (team)") != nil {
+				team, err := GetTeamByID(int64(id))
+				if database.CheckError(c, err, "Team not found") != nil {
 					return
 				}
 
-				for rows.Next() {
-					team := Team{}
-					err = rows.Scan(&team.ID, &team.Name, &team.Color, &team.Logo, &team.Created)
-					if checkError(c, err, "Could not fetch data from the database (team)") != nil {
-						return
-					}
-					teams = append(teams, team)
+				c.JSON(http.StatusOK, team)
+
+			})
+
+			/**
+			 * Upload a logo
+			 * POST /teams/:teamId/logo
+			 */
+			identifiedTeamGroup.POST("/logo", func(c *gin.Context) {
+				id, err := strconv.Atoi(c.Param("teamId"))
+				if database.CheckError(c, err, "Bad format of ID") != nil {
+					return
 				}
 
-				rows.Close() //good habit to close
+				team, err := GetTeamByID(int64(id))
+				if database.CheckError(c, err, "Could not read the database (team)") != nil {
+					return
+				}
 
-				c.JSON(http.StatusOK, teams)
+				file, header, err := c.Request.FormFile("upload")
+				if file == nil || header == nil {
+					c.JSON(http.StatusBadRequest, gin.H{
+						"message": "You must specify a file",
+						"error":   "No file",
+					})
+					return
+				}
+
+				team.Logo = header.Filename
+
+				if _, err := os.Stat(viper.GetString("logo_dir")); os.IsNotExist(err) {
+					os.Mkdir(viper.GetString("logo_dir"), os.ModePerm)
+				}
+
+				filename := viper.GetString("logo_dir") + "/" + team.Logo
+				fmt.Printf("Creating file %s\n", filename)
+
+				out, err := os.Create(filename)
+				if err != nil {
+					log.Fatal(err)
+				}
+				defer out.Close()
+				_, err = io.Copy(out, file)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				stmt, err := database.Database.Prepare("update team set logo=? where id=?")
+				if database.CheckError(c, err, "Mal-formed database query") != nil {
+					return
+				}
+
+				res, err := stmt.Exec(team.Logo, id)
+				if database.CheckError(c, err, "Could not update the team") != nil {
+					return
+				}
+
+				_, err = res.RowsAffected()
+				if database.CheckError(c, err, "Could not check the upload") != nil {
+					return
+				}
 
 			})
 
 		}
 
+		/**
+		 * Create a team
+		 * POST /teams
+		 */
 		teamGroup.POST("/", func(c *gin.Context) {
 			team := Team{
 				Name:  "",
@@ -103,23 +184,24 @@ func DefineRoutes(router *gin.Engine) (teamGroup *gin.RouterGroup, identifiedTea
 				Logo:  "",
 			}
 			err := c.BindJSON(&team)
-			if checkError(c, err, "Bad JSON format") != nil {
+			if database.CheckError(c, err, "Bad JSON format") != nil {
 				return
 			}
 
 			team.Created = time.Now().Format("2006-01-02 15:04:05")
+
 			stmt, err := database.Database.Prepare("INSERT INTO team(name, color, logo, created) values(?,?,?,?)")
-			if checkError(c, err, "Mal-formed database query") != nil {
+			if database.CheckError(c, err, "Mal-formed database query") != nil {
 				return
 			}
 
 			res, err := stmt.Exec(team.Name, team.Color, team.Logo, team.Created)
-			if checkError(c, err, "Could not create the team in the database") != nil {
+			if database.CheckError(c, err, "Could not create the team in the database") != nil {
 				return
 			}
 
 			team.ID, err = res.LastInsertId()
-			if checkError(c, err, "Could not check the team in the database") != nil {
+			if database.CheckError(c, err, "Could not check the team in the database") != nil {
 				return
 			}
 
@@ -127,21 +209,25 @@ func DefineRoutes(router *gin.Engine) (teamGroup *gin.RouterGroup, identifiedTea
 
 		})
 
+		/**
+		 * delete a team
+		 * DELETE /teams
+		 */
 		teamGroup.DELETE("/:teamId", func(c *gin.Context) {
 			id := c.Param("teamId")
 
 			stmt, err := database.Database.Prepare("delete from team where id=?")
-			if checkError(c, err, "Mal-formed database query") != nil {
+			if database.CheckError(c, err, "Mal-formed database query") != nil {
 				return
 			}
 
 			res, err := stmt.Exec(id)
-			if checkError(c, err, "Could not delete the team from the database") != nil {
+			if database.CheckError(c, err, "Could not delete the team from the database") != nil {
 				return
 			}
 
 			affect, err := res.RowsAffected()
-			if checkError(c, err, "Could not check the deletion") != nil {
+			if database.CheckError(c, err, "Could not check the deletion") != nil {
 				return
 			}
 
@@ -151,50 +237,44 @@ func DefineRoutes(router *gin.Engine) (teamGroup *gin.RouterGroup, identifiedTea
 
 		})
 
+		/**
+		 * Update a team
+		 * PUT /teams
+		 */
 		teamGroup.PUT("/:teamId", func(c *gin.Context) {
-			id := c.Param("teamId")
-
-			team := Team{
-				Name:  "",
-				Color: "",
-				Logo:  "",
-			}
-			err := c.BindJSON(&team)
-			if checkError(c, err, "Bad JSON format") != nil {
+			id, err := strconv.Atoi(c.Param("teamId"))
+			if database.CheckError(c, err, "Bad format of ID") != nil {
 				return
 			}
 
-			stmt, err := database.Database.Prepare("update team set name=? color=? logo=? where id=?")
-			if checkError(c, err, "Mal-formed database query") != nil {
+			team, err := GetTeamByID(int64(id))
+			if database.CheckError(c, err, "Team not found") != nil {
 				return
 			}
 
-			res, err := stmt.Exec(team.Name, team.Color, team.Logo, id)
-			if checkError(c, err, "Could not update the team") != nil {
+			err = c.BindJSON(&team)
+			if database.CheckError(c, err, "Bad JSON format") != nil {
 				return
 			}
 
-			affect, err := res.RowsAffected()
-			if checkError(c, err, "Could not chack the update") != nil {
+			stmt, err := database.Database.Prepare("update team set name=?, color=? where id=?")
+			if database.CheckError(c, err, "Mal-formed database query") != nil {
 				return
 			}
 
-			c.JSON(http.StatusOK, gin.H{
-				"id": affect,
-			})
+			res, err := stmt.Exec(team.Name, team.Color, id)
+			if database.CheckError(c, err, "Could not update the team") != nil {
+				return
+			}
+
+			_, err = res.RowsAffected()
+			if database.CheckError(c, err, "Could not check the update") != nil {
+				return
+			}
+
+			c.JSON(http.StatusOK, team)
 
 		})
-
-		/*teamGroup.PATCH("/:teamId", func(c *gin.Context) {
-			id := c.Param("teamId")
-
-			team := Team{}
-			err := c.BindJSON(&team)
-			if checkError(c, err, "Bad JSON format") != nil {
-				return
-			}
-
-		})*/
 
 	}
 	return

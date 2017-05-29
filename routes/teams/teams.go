@@ -17,34 +17,25 @@ import (
 
 // Team define to model of a team
 type Team struct {
-	ID      int64  `json:"id,omitempty"`
-	Name    string `json:"name,omitempty"`
-	Color   string `json:"color,omitempty"`
-	Logo    string `json:"logo,omitempty"`
-	Created string `json:"created,omitempty"`
-}
-
-func teamToGin(team Team) gin.H {
-	return gin.H{
-		"id":      team.ID,
-		"name":    team.Name,
-		"color":   team.Color,
-		"logo":    team.Logo,
-		"created": team.Created,
-	}
+	ID        int64  `json:"id,omitempty"`
+	Name      string `json:"name,omitempty"`
+	Color     string `json:"color,omitempty"`
+	ColorCode string `json:"color_code,omitempty"`
+	Logo      string `json:"logo,omitempty"`
+	Created   string `json:"created,omitempty"`
 }
 
 //GetTeamByID read a team
 func GetTeamByID(id int64) (team Team, err error) {
 	counter := 0
-	rows, err := database.Database.Query("SELECT id, name, color, logo, created FROM team WHERE id=?", id)
+	rows, err := database.Database.Query("SELECT id, name, color, color_code, logo, created FROM team WHERE id=?", id)
 
 	if err != nil {
 		return
 	}
 
 	for rows.Next() {
-		err = rows.Scan(&team.ID, &team.Name, &team.Color, &team.Logo, &team.Created)
+		err = rows.Scan(&team.ID, &team.Name, &team.Color, &team.ColorCode, &team.Logo, &team.Created)
 		if err != nil {
 			return
 		}
@@ -70,14 +61,14 @@ func DefineRoutes(router *gin.Engine) (teamGroup *gin.RouterGroup, identifiedTea
 		 */
 		teamGroup.GET("/", func(c *gin.Context) {
 			var teams []Team
-			rows, err := database.Database.Query("SELECT id, name, color, logo, created FROM team")
+			rows, err := database.Database.Query("SELECT id, name, color, color_code, logo, created FROM team")
 			if database.CheckError(c, err, "Could not read the database (team)") != nil {
 				return
 			}
 
 			for rows.Next() {
 				team := Team{}
-				err = rows.Scan(&team.ID, &team.Name, &team.Color, &team.Logo, &team.Created)
+				err = rows.Scan(&team.ID, &team.Name, &team.Color, &team.ColorCode, &team.Logo, &team.Created)
 				if database.CheckError(c, err, "Could not fetch data from the database (team)") != nil {
 					return
 				}
@@ -186,9 +177,10 @@ func DefineRoutes(router *gin.Engine) (teamGroup *gin.RouterGroup, identifiedTea
 		 */
 		teamGroup.POST("/", func(c *gin.Context) {
 			team := Team{
-				Name:  "",
-				Color: "",
-				Logo:  "",
+				Name:      "",
+				Color:     "",
+				ColorCode: "",
+				Logo:      "",
 			}
 			err := c.BindJSON(&team)
 			if database.CheckError(c, err, "Bad JSON format") != nil {
@@ -197,12 +189,12 @@ func DefineRoutes(router *gin.Engine) (teamGroup *gin.RouterGroup, identifiedTea
 
 			team.Created = time.Now().Format("2006-01-02 15:04:05")
 
-			stmt, err := database.Database.Prepare("INSERT INTO team(name, color, logo, created) values(?,?,?,?)")
+			stmt, err := database.Database.Prepare("INSERT INTO team(name, color, color_code, logo, created) values(?,?,?,?,?)")
 			if database.CheckError(c, err, "Mal-formed database query") != nil {
 				return
 			}
 
-			res, err := stmt.Exec(team.Name, team.Color, team.Logo, team.Created)
+			res, err := stmt.Exec(team.Name, team.Color, team.ColorCode, team.Logo, team.Created)
 			if database.CheckError(c, err, "Could not create the team in the database") != nil {
 				return
 			}
@@ -264,12 +256,12 @@ func DefineRoutes(router *gin.Engine) (teamGroup *gin.RouterGroup, identifiedTea
 				return
 			}
 
-			stmt, err := database.Database.Prepare("update team set name=?, color=? where id=?")
+			stmt, err := database.Database.Prepare("update team set name=?, color=?, color_code=? where id=?")
 			if database.CheckError(c, err, "Mal-formed database query") != nil {
 				return
 			}
 
-			res, err := stmt.Exec(team.Name, team.Color, id)
+			res, err := stmt.Exec(team.Name, team.Color, team.ColorCode, id)
 			if database.CheckError(c, err, "Could not update the team") != nil {
 				return
 			}

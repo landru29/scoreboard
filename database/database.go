@@ -28,6 +28,7 @@ func InitDatabase() (err error) {
 		"id" INTEGER PRIMARY KEY AUTOINCREMENT,
 		"name" VARCHAR(64) NULL,
         "color" VARCHAR(64) NULL,
+		"color_code" VARCHAR(10) NULL,
 		"logo" VARCHAR(55) NULL,
         "created" DATETIME NULL
     );`)

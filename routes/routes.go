@@ -21,6 +21,7 @@ func DefineRoutes() *gin.Engine {
 	noRoute(router)
 
 	router.Use(static.Serve("/scoreboard", static.LocalFile("./assets", true)))
+	router.Use(static.Serve("/logo", static.LocalFile("./logos", true)))
 
 	//router.Static("/scoreboard", "./assets")
 

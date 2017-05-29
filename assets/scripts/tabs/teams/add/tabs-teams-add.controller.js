@@ -1,4 +1,4 @@
-angular.module("scoreboard").controller("TeamAddCtrl", function TeamDetailCtrl ($scope, $state, $stateParams, Team) {
+angular.module("scoreboard").controller("TeamAddCtrl", function TeamDetailCtrl ($q, $scope, $state, $stateParams, Team, toaster) {
     "use strict";
 
     var self = this;
@@ -14,7 +14,11 @@ angular.module("scoreboard").controller("TeamAddCtrl", function TeamDetailCtrl (
             color_code: this.team.color_code
         }).$promise.then(function (team) {
             $scope.$emit("refresh-team-list");
+            toaster.pop({ type: "success", title: "New team"});
             return $state.go("main.teams.detail", { teamId: team.id });
+        }).catch(function (err) {
+            toaster.pop({ type: "error", title: "Team", body:"could not be created"});
+            return $q.reject(err);
         });
     };
 

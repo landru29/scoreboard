@@ -10,6 +10,10 @@ angular.module("scoreboard").controller("MainCtrl", function MainCtrl (APP, $sta
      */
     this.$onInit = function () {
         this.tabs = APP.tabs;
+
+        if ($state.current.name === "main") {
+            $state.go("main.teams");
+        }
     };
 
 });

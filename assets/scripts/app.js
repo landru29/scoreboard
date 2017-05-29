@@ -2,7 +2,10 @@ angular.module("scoreboard", [
     "ui.router",
     "ui.bootstrap",
     "ngResource",
-    "ui.bootstrap.materialPicker"
+    "ui.bootstrap.materialPicker",
+    "angularFileUpload",
+    "toaster",
+    "ngAnimate"
 ]);
 
 angular.module("scoreboard").config(function($stateProvider) {

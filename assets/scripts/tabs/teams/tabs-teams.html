@@ -1,4 +1,12 @@
 <div class="row">
+    <div class="col-md-6">
+        <a class="btn btn-primary" data-ui-sref="main.teams.add">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            <span>Add</span>
+        </a>
+    </div>
+</div>
+<div class="row top-space-m32">
     <div class="col-md-3">
         <ul class="list-unstyled">
             <li data-ng-repeat="team in TeamsCtrl.teams track by team.id">
@@ -7,14 +15,5 @@
         </ul>
     </div>
     <div class="col-md-9" data-ui-view="teamDetail">
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-6">
-        <a class="btn btn-primary" data-ui-sref="main.teams.add">
-            <i class="fa fa-plus" aria-hidden="true"></i>
-            <span>Add</span>
-        </a>
     </div>
 </div>

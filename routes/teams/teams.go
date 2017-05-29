@@ -133,13 +133,13 @@ func DefineRoutes(router *gin.Engine) (teamGroup *gin.RouterGroup, identifiedTea
 					return
 				}
 
-				team.Logo = header.Filename
+				team.Logo = "/logo/" + header.Filename
 
 				if _, err := os.Stat(viper.GetString("logo_dir")); os.IsNotExist(err) {
 					os.Mkdir(viper.GetString("logo_dir"), os.ModePerm)
 				}
 
-				filename := viper.GetString("logo_dir") + "/" + team.Logo
+				filename := viper.GetString("logo_dir") + "/" + header.Filename
 				fmt.Printf("Creating file %s\n", filename)
 
 				out, err := os.Create(filename)
@@ -166,6 +166,8 @@ func DefineRoutes(router *gin.Engine) (teamGroup *gin.RouterGroup, identifiedTea
 				if database.CheckError(c, err, "Could not check the upload") != nil {
 					return
 				}
+
+				c.JSON(http.StatusOK, team)
 
 			})
 
@@ -215,23 +217,38 @@ func DefineRoutes(router *gin.Engine) (teamGroup *gin.RouterGroup, identifiedTea
 		teamGroup.DELETE("/:teamId", func(c *gin.Context) {
 			id := c.Param("teamId")
 
-			stmt, err := database.Database.Prepare("delete from team where id=?")
+			teamDelete, err := database.Database.Prepare("delete from team where id=?")
 			if database.CheckError(c, err, "Mal-formed database query") != nil {
 				return
 			}
 
-			res, err := stmt.Exec(id)
+			resTeam, err := teamDelete.Exec(id)
 			if database.CheckError(c, err, "Could not delete the team from the database") != nil {
 				return
 			}
 
-			affect, err := res.RowsAffected()
+			affectTeam, err := resTeam.RowsAffected()
+			if database.CheckError(c, err, "Could not check the deletion") != nil {
+				return
+			}
+
+			playersDelete, err := database.Database.Prepare("delete from player where team=?")
+			if database.CheckError(c, err, "Mal-formed database query") != nil {
+				return
+			}
+
+			resPlayers, err := playersDelete.Exec(id)
+			if database.CheckError(c, err, "Could not delete the players from the database") != nil {
+				return
+			}
+
+			_, err = resPlayers.RowsAffected()
 			if database.CheckError(c, err, "Could not check the deletion") != nil {
 				return
 			}
 
 			c.JSON(http.StatusOK, gin.H{
-				"id": affect,
+				"id": affectTeam,
 			})
 
 		})

@@ -1,6 +1,6 @@
 <uib-tabset active="active">
     <uib-tab index="$index"
-             select="MainCtrl.go(tab.state)"
+             ng-click="MainCtrl.go(tab.state)"
              data-ng-repeat="tab in MainCtrl.tabs track by $index">
         <uib-tab-heading>
             <i data-ng-class="tab.icon" aria-hidden="true"></i>
@@ -9,7 +9,7 @@
     </uib-tab>
 </uib-tabset>
 
-<div class="tab-content" data-ui-view="tabContent"></div>
+<div class="tab-content top-space-m32" data-ui-view="tabContent"></div>
 
 
 

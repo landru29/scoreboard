@@ -1,7 +1,8 @@
 angular.module("scoreboard", [
     "ui.router",
     "ui.bootstrap",
-    "ngResource"
+    "ngResource",
+    "ui.bootstrap.materialPicker"
 ]);
 
 angular.module("scoreboard").config(function($stateProvider) {

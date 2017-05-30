@@ -5,6 +5,8 @@ import (
 
 	"github.com/landru29/scoreboard/database"
 	"github.com/landru29/scoreboard/routes"
+	"github.com/landru29/scoreboard/routes/sockets"
+	"github.com/landru29/scoreboard/ws"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -57,6 +59,8 @@ func init() {
 	viper.BindPFlag("api_protocol", flags.Lookup("api-protocol"))
 	viper.BindPFlag("sqlite_file", flags.Lookup("sqlite-file"))
 	viper.BindPFlag("logo_dir", flags.Lookup("logo-dir"))
+	sockets.Hub = ws.NewHub()
+	go sockets.Hub.Run()
 }
 
 func main() {

@@ -10,20 +10,23 @@ angular.module("scoreboard").provider("Ws", function Ws () {
 
     this.connections = {};
     this.messageTransporters = {};
+    this.attempts = {};
     this.$rootScope = null
 
     this.autoReconnect = false;
     this.maxReconnectionAttempts = 10;
 
-    if (!windows.WebSocket) {
+    if (!window.WebSocket) {
         console.error("Websockets does not Work on this Browser ! Use another browser like Firefox or Chrome.");
     }
 
     this.CreateConnection = function (name, url) {
+        url = /^ws:\/\//.test(url) ? url : "ws://" + window.location.host + url;
         this.connections[name] = new WebSocket(url);
+        this.attempts[name] = this.attempts[name] ? this.attempts[name] : this.maxReconnectionAttempts;
         this.connections[name].onclose = function (evt) {
             console.warn("[Websocket]", "connection closed");
-            if (_ws.maxReconnectionAttempts-- >= 0) {
+            if (self.attempts[name]-- >= 0) {
                 console.log("[Websocket]", "reconnecting");
                 self.CreateConnection (name, url);
             }

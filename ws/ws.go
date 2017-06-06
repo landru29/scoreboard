@@ -13,8 +13,12 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	Log("Connected")
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
-	client.hub.register <- client
+	client := &Client{
+		Hub:       hub,
+		Connexion: conn,
+		Send:      make(chan []byte, 256),
+	}
+	client.Hub.register <- client
 	go client.writePump()
 	go client.readPump()
 }

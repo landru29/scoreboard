@@ -20,4 +20,5 @@ type Status struct {
 	Ellapsed string `json:"ellapsed"`
 	Status   string `json:"status"`
 	Now      string `json:"now"`
+	UUID     string `json:"uuid"`
 }

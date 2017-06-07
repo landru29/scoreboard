@@ -2,6 +2,7 @@ package chronometer
 
 import (
 	"time"
+	"encoding/json"
 
 	"github.com/landru29/scoreboard/ws"
 )
@@ -28,16 +29,18 @@ func Create(client *ws.Client) *Chronometer {
 					Ellapsed: c.Ellapsed.String(),
 					Now: now.Format("2006-01-02 15:04:05"),
 					Status: control,
+					UUID: c.Client.UUID,
 				}
 				if control == "stop" {
 					if c.Running {
 						projection := now.Add(c.Ellapsed)
 						c.Ellapsed += projection.Sub(c.Starting)
 						c.Running = false
-						if data, err := Marshal(status); err != nil {
+						if data, err := json.Marshal(status); err != nil {
 							c.Client.SendMessage([]byte("{\"status\":\"fatal\"}"))
+						} else {
+							c.Client.SendMessage(data)
 						}
-						c.Client.SendMessage(data)
 					}
 					
 				}
@@ -45,17 +48,19 @@ func Create(client *ws.Client) *Chronometer {
 				if control == "start" {
 					c.Starting = time.Now()
 					c.Running = true
-					if data, err := Marshal(status); err != nil {
+					if data, err := json.Marshal(status); err != nil {
 						c.Client.SendMessage([]byte("{\"status\":\"fatal\"}"))
+					} else {
+						c.Client.SendMessage(data)
 					}
-					c.Client.SendMessage(data)
 				}
 
 				if control == "close" {
-					if data, err := Marshal(status); err != nil {
+					if data, err := json.Marshal(status); err != nil {
 						c.Client.SendMessage([]byte("{\"status\":\"fatal\"}"))
+					} else {
+						c.Client.SendMessage(data)
 					}
-					c.Client.SendMessage(data)
 					return
 				}
 
@@ -63,10 +68,11 @@ func Create(client *ws.Client) *Chronometer {
 				if (!c.Running) {
 					status.Status = "idle"
 				}
-				if data, err := Marshal(status); err != nil {
+				if data, err := json.Marshal(status); err != nil {
 					c.Client.SendMessage([]byte("{\"status\":\"fatal\"}"))
+				} else {
+					c.Client.SendMessage(data)
 				}
-				c.Client.SendMessage(data)
 		}
 
 	return c

@@ -2,6 +2,7 @@ package ws
 
 import (
 	"bytes"
+	"encoding/json"
 	"log"
 	"strconv"
 	"time"
@@ -42,6 +43,15 @@ type Client struct {
 
 	// Buffered channel of outbound messages.
 	Send chan []byte
+
+	UUID string
+}
+
+// Command is the structure to exchange commandes
+type Command struct {
+	Name   string `json:"name"`
+	Data   string `json:"data"`
+	Origin string `json:"origin"`
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -95,6 +105,18 @@ func (c *Client) SendMessage(message []byte) {
 // application ensures that there is at most one writer to a connection by
 // executing all writes from this goroutine.
 func (c *Client) writePump() {
+	command := Command{
+		Name:   "SetUuid",
+		Data:   c.UUID,
+		Origin: "SERVER",
+	}
+	data, err := json.Marshal(command)
+	if err != nil {
+		c.SendMessage([]byte("{\"status\":\"fatal\"}"))
+	} else {
+		c.SendMessage(data)
+	}
+
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()

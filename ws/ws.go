@@ -3,6 +3,8 @@ package ws
 import (
 	"log"
 	"net/http"
+
+	"github.com/satori/go.uuid"
 )
 
 // ServeWs handles websocket requests from the peer.
@@ -17,6 +19,7 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		Hub:       hub,
 		Connexion: conn,
 		Send:      make(chan []byte, 256),
+		UUID:      uuid.NewV4().String(),
 	}
 	client.Hub.register <- client
 	go client.writePump()

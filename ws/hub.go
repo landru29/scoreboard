@@ -1,10 +1,15 @@
 package ws
 
+import (
+	"encoding/json"
+	"errors"
+)
+
 // Hub maintains the set of active clients and broadcasts messages to the
 // clients.
 type Hub struct {
 	// Registered clients.
-	clients map[*Client]bool
+	clients []*Client
 
 	// Inbound messages from the clients.
 	broadcast chan []byte
@@ -22,7 +27,6 @@ func NewHub() *Hub {
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
 	}
 }
 
@@ -31,21 +35,47 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case client := <-h.register:
-			h.clients[client] = true
+			h.clients = append(h.clients, client)
 		case client := <-h.unregister:
-			if _, ok := h.clients[client]; ok {
-				delete(h.clients, client)
-				close(client.Send)
-			}
+			h.removeClient(client)
 		case message := <-h.broadcast:
-			for client := range h.clients {
+			for _, client := range h.clients {
 				select {
 				case client.Send <- message:
 				default:
-					close(client.Send)
-					delete(h.clients, client)
+					h.removeClient(client)
 				}
 			}
 		}
 	}
+}
+
+// Remove a client from the hub
+func (h *Hub) removeClient(c *Client) error {
+	index := -1
+	for i, client := range h.clients {
+		if client == c {
+			index = i
+		}
+	}
+	if index < 0 {
+		return errors.New("Client not found")
+	}
+	h.clients = append(h.clients[:index], h.clients[index+1:]...)
+	close(c.Send)
+	return nil
+}
+
+// BroadcastMessage send a message to all clients
+func (h *Hub) BroadcastMessage(message []byte) {
+	h.broadcast <- message
+}
+
+// BroadcastObject send an object as json to all clients
+func (h *Hub) BroadcastObject(obj interface{}) (err error) {
+	data, err := json.Marshal(obj)
+	if err == nil {
+		h.BroadcastMessage(data)
+	}
+	return
 }

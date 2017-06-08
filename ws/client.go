@@ -1,13 +1,13 @@
 package ws
 
 import (
-	"bytes"
 	"encoding/json"
 	"log"
 	"strconv"
 	"time"
 
 	"github.com/gorilla/websocket"
+	uuid "github.com/satori/go.uuid"
 )
 
 const (
@@ -54,11 +54,29 @@ type Command struct {
 	Origin string `json:"origin"`
 }
 
+// Handshake is a handshake message sent to the client
+type Handshake struct {
+	Status string `json:"status"`
+	Data   string `json:"data"`
+}
+
+// NewClient create a newClient on a hub
+func NewClient(hub *Hub, conn *websocket.Conn) *Client {
+	client := &Client{
+		Hub:       hub,
+		Connexion: conn,
+		Send:      make(chan []byte, 256),
+		UUID:      uuid.NewV4().String(),
+	}
+	client.Hub.register <- client
+
+	go client.writePump()
+	go client.readPump()
+
+	return client
+}
+
 // readPump pumps messages from the websocket connection to the hub.
-//
-// The application runs readPump in a per-connection goroutine. The application
-// ensures that there is at most one reader on a connection by executing all
-// reads from this goroutine.
 func (c *Client) readPump() {
 	defer func() {
 		c.Hub.unregister <- c
@@ -66,7 +84,13 @@ func (c *Client) readPump() {
 	}()
 	c.Connexion.SetReadLimit(maxMessageSize)
 	c.Connexion.SetReadDeadline(time.Now().Add(pongWait))
-	c.Connexion.SetPongHandler(func(string) error { c.Connexion.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	c.Connexion.SetPongHandler(
+		func(string) error {
+			c.Connexion.SetReadDeadline(time.Now().Add(pongWait))
+			return nil
+		},
+	)
+
 	for {
 		_, message, err := c.Connexion.ReadMessage()
 		if err != nil {
@@ -76,14 +100,29 @@ func (c *Client) readPump() {
 			}
 			break
 		}
-		Log("Read message " + strconv.FormatInt(int64(len(message)), 10) + "bytes")
-		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.Hub.broadcast <- message
+
+		var command Command
+		err = json.Unmarshal(message, &command)
+		if err != nil {
+			c.SendObject(Handshake{
+				Status: "error",
+				Data:   "This is not a valid command",
+			})
+		}
+
+		// Here are the processing of commands
+
+		if c.Hub.BroadcastObject(command) != nil {
+			c.SendObject(Handshake{
+				Status: "error",
+				Data:   "Cannot echo the command to all clients",
+			})
+		}
 	}
 }
 
 // SendMessage send a message
-func (c *Client) SendMessage(message []byte) {
+func (c *Client) SendMessage(message []byte) (err error) {
 	c.Connexion.SetWriteDeadline(time.Now().Add(writeWait))
 
 	w, err := c.Connexion.NextWriter(websocket.TextMessage)
@@ -93,17 +132,25 @@ func (c *Client) SendMessage(message []byte) {
 	Log("Write message " + strconv.FormatInt(int64(len(message)), 10) + "bytes")
 	w.Write(message)
 
-	if err := w.Close(); err != nil {
+	err = w.Close()
+	if err != nil {
 		return
 	}
 
+	return
+}
+
+// SendObject send an object as json
+func (c *Client) SendObject(obj interface{}) (err error) {
+	data, err := json.Marshal(obj)
+	if err == nil {
+		return c.SendMessage(data)
+	}
+
+	return
 }
 
 // writePump pumps messages from the hub to the websocket connection.
-//
-// A goroutine running writePump is started for each connection. The
-// application ensures that there is at most one writer to a connection by
-// executing all writes from this goroutine.
 func (c *Client) writePump() {
 	command := Command{
 		Name:   "SetUuid",

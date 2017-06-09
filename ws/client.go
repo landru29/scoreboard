@@ -2,6 +2,7 @@ package ws
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"strconv"
 	"time"
@@ -44,14 +45,18 @@ type Client struct {
 	// Buffered channel of outbound messages.
 	Send chan []byte
 
+	// client UUID
 	UUID string
+
+	// Client Role
+	Role string
 }
 
 // Command is the structure to exchange commandes
 type Command struct {
 	Name   string `json:"name"`
 	Data   string `json:"data"`
-	Origin string `json:"origin"`
+	Origin string `json:"origin,omitempty"`
 }
 
 // Handshake is a handshake message sent to the client
@@ -101,6 +106,9 @@ func (c *Client) readPump() {
 			break
 		}
 
+		fmt.Printf("Raw: %v", message)
+		//Log("Raw " + string(message))
+
 		var command Command
 		err = json.Unmarshal(message, &command)
 		if err != nil {
@@ -109,6 +117,7 @@ func (c *Client) readPump() {
 				Data:   "This is not a valid command",
 			})
 		}
+		command.Origin = c.UUID
 
 		// Here are the processing of commands
 

@@ -20,7 +20,8 @@ angular.module("scoreboard").provider("Ws", function Ws () {
         console.error("Websockets does not Work on this Browser ! Use another browser like Firefox or Chrome.");
     }
 
-    this.CreateConnection = function (name, url) {
+    this.createConnection = function (name, url) {
+        var self = this;
         url = /^ws:\/\//.test(url) ? url : "ws://" + window.location.host + url;
         this.connections[name] = new WebSocket(url);
         this.attempts[name] = this.attempts[name] ? this.attempts[name] : this.maxReconnectionAttempts;
@@ -28,8 +29,11 @@ angular.module("scoreboard").provider("Ws", function Ws () {
             console.warn("[Websocket]", "connection closed");
             if (self.attempts[name]-- >= 0) {
                 console.log("[Websocket]", "reconnecting");
-                self.CreateConnection (name, url);
+                self.createConnection (name, url);
+                return;
             }
+            console.error("[Websocket]", "Fail to connect to host");
+            delete self.connections[name];
         };
         this.connections[name].onmessage = function (evt) {
             var data = evt.data;
@@ -60,13 +64,18 @@ angular.module("scoreboard").provider("Ws", function Ws () {
         self.$rootScope = scope;
     }
 
-    Ws.prototype.send = function (name, data) {
-        data = _.isObject(data) ? JSON.stringify(data) : data;
+    Ws.prototype.send = function (name, command, data) {
+        var commandToSend = JSON.stringify({
+            name: command,
+            data: _.isObject(data) ? JSON.stringify(data) : data
+        });
+        
         if (!self.connections[name]) {
             console.error("[Websockets]", "Connection", name, "does not exists");
             return;
         }
-        self.connections[name].send(data);
+        console.info("[Websockets]", "sending", commandToSend);
+        self.connections[name].send(commandToSend);
     };
 
    /**

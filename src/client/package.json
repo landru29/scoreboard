@@ -1,0 +1,35 @@
+{
+  "name": "scoreboard",
+  "version": "1.0.0",
+  "description": "Manage scoreboard for Roller Derby",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/landru29/scoreboard.git"
+  },
+  "author": "Cyrille Meichel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/landru29/scoreboard/issues"
+  },
+  "homepage": "https://github.com/landru29/scoreboard#readme",
+  "devDependencies": {
+    "bower": "^1.8.0",
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
+    "gulp-clean-css": "^3.4.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-copy": "^1.0.0",
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-inject": "^4.2.0",
+    "gulp-less": "^3.3.0",
+    "gulp-load-plugins": "^1.5.0",
+    "gulp-ng-templates": "0.0.10",
+    "gulp-rename": "^1.2.2",
+    "gulp-run-sequence": "^0.3.2",
+    "gulp-wiredep": "^1.2.0"
+  }
+}

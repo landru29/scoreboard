@@ -1,3 +1,9 @@
 scoreboard
 *.db
 logos
+dist
+bower_components
+node_modules
+src/server/server
+src/server/client/style/main.css
+src/server/client/fonts

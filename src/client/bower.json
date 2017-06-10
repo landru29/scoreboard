@@ -1,0 +1,29 @@
+{
+  "name": "scoreboard",
+  "description": "Manage scoreboard for Roller Derby",
+  "main": "index.js",
+  "authors": [
+    "Cyrille Meichel"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/landru29/scoreboard",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "angularjs#^1.6.4",
+    "angular-animate": "^1.6.4",
+    "angular-file-upload": "^2.5.0",
+    "angular-resource": "^1.6.4",
+    "angular-bootstrap": "^2.5.0",
+    "AngularJS-Toaster": "angularjs-toaster#^2.1.0",
+    "bootstrap": "^3.3.7",
+    "font-awesome": "^4.7.0",
+    "lodash": "^4.17.4",
+    "angular-ui-router": "^1.0.4"
+  }
+}

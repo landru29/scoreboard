@@ -1,0 +1,8 @@
+{
+    "api_host": "my host",
+    "api_port": "3000",
+    "api_protocol": "http",
+    "sqlite_file": "./database.db",
+    "logo_dir": "./logos",
+    "client_dir": "../client"
+}

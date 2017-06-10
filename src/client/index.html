@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>Roller Derby Scoreboard</title>
+
+    <!-- bower:css -->
+    <!-- endbower -->
+    <link rel="stylesheet" href="style/main.css" />
+
+    <!-- bower:js -->
+    <!-- endbower -->
+
+
+    <!-- app:js -->
+    <!-- endinject -->
+
+    <script src="app/templates.js"></script>
+
+    <script>
+        if (!/\/$/.test(window.location.pathname) && !/\.[a-zA-Z0-9]*$/.test(window.location.pathname)) {
+            window.location=window.location.pathname + "/";
+        }
+    </script>
+
+</head>
+
+<body data-ng-app="scoreboard">
+    <div class="container-fluid">
+        <h1 class="text-center">Scoreboard</h1>
+        <toaster-container toaster-options="{'close-button':false, 'time-out':{ 'toast-success': 2000, 'toast-warning': 2000, 'toast-error': 0 } }"></toaster-container>
+        <div ui-view="mainView"></div>
+
+    </div>
+</body>
+
+</html>

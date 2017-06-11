@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-md-6">
-        <a class="btn btn-primary" data-ui-sref="main.teams.add">
+        <a class="btn btn-primary" data-ui-sref="main.tabs.teams.add">
             <i class="fa fa-plus" aria-hidden="true"></i>
             <span>Add</span>
         </a>
@@ -10,7 +10,10 @@
     <div class="col-md-3">
         <ul class="list-unstyled">
             <li data-ng-repeat="team in TeamsCtrl.teams track by team.id">
-                <a data-ui-sref="main.teams.detail({teamId: team.id})" data-ng-bind="team.name"></a>
+                <a data-ui-sref="main.tabs.teams.detail({teamId: team.id})">
+                    <img data-ng-src="{{team.logo}}" class="icon">
+                    <span data-ng-bind="team.name || '(No name)'"></span>
+                </a>
             </li>
         </ul>
     </div>

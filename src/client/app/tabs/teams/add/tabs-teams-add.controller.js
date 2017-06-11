@@ -15,7 +15,7 @@ angular.module("scoreboard").controller("TeamAddCtrl", function TeamDetailCtrl (
         }).$promise.then(function (team) {
             $scope.$emit("refresh-team-list");
             toaster.pop({ type: "success", title: "New team"});
-            return $state.go("main.teams.detail", { teamId: team.id });
+            return $state.go("main.tabs.teams.detail", { teamId: team.id });
         }).catch(function (err) {
             toaster.pop({ type: "error", title: "Team", body:"could not be created"});
             return $q.reject(err);

@@ -55,6 +55,21 @@ func InitDatabase() (err error) {
 		return
 	}
 
+	gameTable, err := Database.Prepare(`CREATE TABLE IF NOT EXISTS "game" (
+		"id" INTEGER PRIMARY KEY AUTOINCREMENT,
+		"name" VARCHAR(64) NULL,
+		"teamA" INTEGER,
+		"teamB" INTEGER,
+        "created" DATETIME NULL
+    );`)
+	if err != nil {
+		return
+	}
+	_, err = gameTable.Exec()
+	if err != nil {
+		return
+	}
+
 	return
 }
 

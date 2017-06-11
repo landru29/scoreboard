@@ -34,7 +34,7 @@ gulp.task("copy-vendor", function () {
 
 gulp.task("copy-fonts", function () {
     return gulp
-    .src(["node_modules/bootstrap/fonts/*.{ttf,woff,eof,svg}", "node_modules/font-awesome/fonts/*.{ttf,woff,eof,svg}"])
+    .src(["node_modules/bootstrap/fonts/*.{ttf,woff,woff2,eof,svg}", "node_modules/font-awesome/fonts/*.{ttf,woff,eof,svg}"])
     .pipe(gulp.dest(destination + "/fonts"))
     .pipe(gulp.dest("./fonts"));
 });

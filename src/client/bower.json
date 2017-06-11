@@ -24,6 +24,8 @@
     "bootstrap": "^3.3.7",
     "font-awesome": "^4.7.0",
     "lodash": "^4.17.4",
-    "angular-ui-router": "^1.0.4"
+    "angular-ui-router": "^1.0.4",
+    "angular-ui-select": "^0.19.8",
+    "angular-sanitize": "^1.6.4"
   }
 }

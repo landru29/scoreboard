@@ -16,7 +16,7 @@ angular.module("scoreboard").controller("TeamDetailCtrl", function TeamDetailCtr
             return team;
         }).catch(function (err) {
             toaster.pop({ type: "error", title: "Team", body:"could not be found"});
-            return $q.reject(err);
+            return $state.go("main.tabs.teams");
         });
     };
 
@@ -47,7 +47,7 @@ angular.module("scoreboard").controller("TeamDetailCtrl", function TeamDetailCtr
         }).$promise.then(function () {
             $scope.$emit("refresh-team-list");
             toaster.pop({ type: "success", title: "Team deleted"});
-            return $state.go("main.teams");
+            return $state.go("main.tabs.teams");
         }).catch(function (err) {
             toaster.pop({ type: "error", title: "Team", body:"could not be deleted"});
             return $q.reject(err);

@@ -1,0 +1,12 @@
+<uib-tabset active="TabsCtrl.active">
+    <uib-tab index="$index"
+             ng-click="TabsCtrl.go(tab.state)"
+             data-ng-repeat="tab in TabsCtrl.tabs track by $index">
+        <uib-tab-heading>
+            <i data-ng-class="tab.icon" aria-hidden="true"></i>
+            <span data-ng-bind="tab.name"></span>
+        </uib-tab-heading>
+    </uib-tab>
+</uib-tabset>
+
+<div class="tab-content top-space-m32" data-ui-view="tabContent"></div>

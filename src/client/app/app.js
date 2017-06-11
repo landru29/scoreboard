@@ -6,7 +6,9 @@ angular.module("scoreboard", [
     "ui.bootstrap.materialPicker",
     "angularFileUpload",
     "toaster",
-    "ngAnimate"
+    "ngAnimate",
+    "ui.select",
+    "ngSanitize"
 ]);
 
 angular.module("scoreboard").config(function($stateProvider) {

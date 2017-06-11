@@ -1,0 +1,44 @@
+<form name="gameForm" data-ng-submit="GameAddCtrl.addGame()">
+    <div class="form-group row">
+        <div class="col-md-6">
+            <label for="name">Name</label>
+            <input type="text" id="name" class="form-control"data-ng-model="GameAddCtrl.game.name" required>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-md-6">
+            <label for="teamA">Team 1 <span class="label" style="background-color: {{ GameAddCtrl.game.teamA.color_code }}" ng-bind-html="GameAddCtrl.game.teamA.color || ' '"></span></label>
+            <ui-select ng-model="GameAddCtrl.game.teamA" theme="bootstrap" name="teamA">
+                <ui-select-match placeholder="Select or search a team in the list...">{{$select.selected.name}}</ui-select-match>
+                <ui-select-choices repeat="team in GameAddCtrl.teams | filter: $select.search">
+                <div ng-bind-html="team.name | highlight: $select.search"></div>
+                <span class="label" style="background-color: {{ team.color_code }}" ng-bind-html="team.color | highlight: $select.search"></span>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-md-6">
+            <label for="teamB">Team 2 <span class="label" style="background-color: {{ GameAddCtrl.game.teamB.color_code }}" ng-bind-html="GameAddCtrl.game.teamA.color || ' '"></span></label>
+            <ui-select ng-model="GameAddCtrl.game.teamB" theme="bootstrap" name="teamB">
+                <ui-select-match placeholder="Select or search a team in the list...">{{$select.selected.name}}</ui-select-match>
+                <ui-select-choices repeat="team in GameAddCtrl.teams | filter: $select.search">
+                <div ng-bind-html="team.name | highlight: $select.search"></div>
+                <span class="label" style="background-color: {{ team.color_code }}" ng-bind-html="team.color | highlight: $select.search"></span>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-6">
+            <button type="submit" class="btn btn-primary" data-ng-disabled="gameForm.$invalid || !GameAddCtrl.game.teamA || !GameAddCtrl.game.teamB">
+                <i class="fa fa-check" aria-hidden="true"></i>
+                <span>Create</span>
+            </button>
+        </div>
+    </div>
+</form>

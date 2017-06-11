@@ -34,7 +34,7 @@ func getTeam(c *gin.Context) (team teams.Team, err error) {
 	return
 }
 
-//GetPlayerByID read a team
+//GetPlayerByID read a player
 func GetPlayerByID(id int64) (player Player, err error) {
 	counter := 0
 	rows, err := database.Database.Query("SELECT id, name, number, team, created FROM player WHERE id=?", id)
@@ -60,7 +60,7 @@ func GetPlayerByID(id int64) (player Player, err error) {
 	return
 }
 
-// DefineRoutes define all the teams routes
+// DefineRoutes define all the players routes
 func DefineRoutes(router *gin.RouterGroup) (playerGroup *gin.RouterGroup) {
 	playerGroup = router.Group("/players")
 	{
@@ -82,7 +82,7 @@ func DefineRoutes(router *gin.RouterGroup) (playerGroup *gin.RouterGroup) {
 			for rows.Next() {
 				player := Player{}
 				err = rows.Scan(&player.ID, &player.Name, &player.Number, &player.Team, &player.Created)
-				if database.CheckError(c, err, "Could not fetch data from the database (teplayeram)") != nil {
+				if database.CheckError(c, err, "Could not fetch data from the database (player)") != nil {
 					return
 				}
 				players = append(players, player)

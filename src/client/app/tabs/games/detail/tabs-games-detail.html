@@ -1,0 +1,60 @@
+<h2 data-ng-bind="GameDetailCtrl.gameTitle"></h2>
+<form name="gameForm" data-ng-submit="GameDetailCtrl.saveGame()">
+    <div class="form-group row">
+        <div class="col-md-6">
+            <label for="name">Name</label>
+            <input type="text" id="name" class="form-control"data-ng-model="GameDetailCtrl.game.name" required>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-md-6">
+            <label for="teamA">Team 1 
+                <span class="label" style="background-color: {{ GameDetailCtrl.game.teamA.color_code }}" ng-bind-html="GameDetailCtrl.game.teamA.color || ' '"></span>
+                <img data-ng-src="{{GameDetailCtrl.game.teamA.logo}}" class="icon">
+            </label>
+            <ui-select ng-model="GameDetailCtrl.game.teamA" theme="bootstrap" name="teamA">
+                <ui-select-match placeholder="Select or search a team in the list...">{{$select.selected.name}}</ui-select-match>
+                <ui-select-choices repeat="team in GameDetailCtrl.teams | filter: $select.search">
+                    <div ng-bind-html="team.name | highlight: $select.search"></div>
+                    <span class="label" style="background-color: {{ team.color_code }}" ng-bind-html="team.color | highlight: $select.search"></span>
+                    <img data-ng-src="{{team.logo}}" class="icon">
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-md-6">
+            <label for="teamB">Team 2 
+                <span class="label" style="background-color: {{ GameDetailCtrl.game.teamB.color_code }}" ng-bind-html="GameDetailCtrl.game.teamB.color || ' '"></span>
+                <img data-ng-src="{{GameDetailCtrl.game.teamB.logo}}" class="icon">
+            </label>
+            <ui-select ng-model="GameDetailCtrl.game.teamB" theme="bootstrap" name="teamB">
+                <ui-select-match placeholder="Select or search a team in the list...">{{$select.selected.name}}</ui-select-match>
+                <ui-select-choices repeat="team in GameDetailCtrl.teams | filter: $select.search">
+                    <div ng-bind-html="team.name | highlight: $select.search"></div>
+                    <span class="label" style="background-color: {{ team.color_code }}" ng-bind-html="team.color | highlight: $select.search"></span>
+                    <img data-ng-src="{{team.logo}}" class="icon">
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-6">
+            <button type="submit" class="btn btn-primary" data-ng-disabled="gameForm.$invalid || !GameDetailCtrl.game.teamA || !GameDetailCtrl.game.teamB || GameDetailCtrl.gameBusy">
+                <i class="fa fa-check" aria-hidden="true"></i>
+                <span>Update</span>
+            </button>
+            <button type="button"
+                    class="btn btn-warning"
+                    data-ng-click="GameDetailCtrl.deleteGame()"
+                    data-ng-disabled="GameDetailCtrl.gameBusy">
+                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                <span>Delete</span>
+            </button>
+        </div>
+    </div>
+</form>

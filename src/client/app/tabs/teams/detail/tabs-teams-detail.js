@@ -1,6 +1,6 @@
 angular.module("scoreboard").config(function($stateProvider) {
     $stateProvider.state({
-        name: "main.teams.detail",
+        name: "main.tabs.teams.detail",
         url: "/:teamId",
         views: {
             teamDetail: {

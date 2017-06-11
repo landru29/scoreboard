@@ -14,7 +14,6 @@ gulp.task("clean", function () {
         .pipe(plugins.clean({ force: true }));
 });
 
-
 gulp.task("copy-assets", function () {
     return gulp
     .src(["assets/**/*"])
@@ -40,8 +39,8 @@ gulp.task("copy-fonts", function () {
     .pipe(gulp.dest("./fonts"));
 });
 
-gulp.task("inject-app-js", function () {
-    gulp.src("./index.html")
+gulp.task("inject-dev-js", function () {
+    return gulp.src("./index.html")
     .pipe(plugins.inject(gulp.src(
         [
             "./app/app.js",
@@ -58,9 +57,15 @@ gulp.task("inject-app-js", function () {
     }
     ))
     .pipe(plugins.wiredep({}))
-    .pipe(gulp.dest(destination))
     .pipe(plugins.rename("dev.html"))
-    .pipe(gulp.dest("./"));
+    .pipe(gulp.dest("./"))
+    .pipe(plugins.livereload());
+});
+
+gulp.task("inject-app-js", ["inject-dev-js"], function () {
+    return gulp.src("./dev.html")
+        .pipe(plugins.rename("index.html"))
+        .pipe(gulp.dest(destination));
 });
 
 gulp.task("less", function () {
@@ -92,6 +97,10 @@ gulp.task("copy-bower-deps", function() {
         .pipe(gulp.dest(destination + "/bower_components"));
 });  
 
+gulp.task("watch", ["inject-dev-js", "less"], function () {
+    plugins.livereload.listen();
+    gulp.watch("./app/**/*.{js,less}", ["inject-dev-js", "less"])
+});
 
 gulp.task("build", [
     "inject-app-js",
@@ -107,3 +116,5 @@ gulp.task("build", [
 gulp.task("default", function(done) {
     plugins.runSequence("clean", "build");
 });
+
+gulp.task("serve", ["watch"]);

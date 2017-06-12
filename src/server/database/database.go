@@ -64,8 +64,8 @@ func InitDatabase() (err error) {
 	if err := execSQL(`
 		CREATE TABLE IF NOT EXISTS "game" (
 			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
-			"start" DATETIME NULL,
-			"end" DATETIME NULL,
+			"start" DATETIME NOT NULL DEFAULT "",
+			"end" DATETIME NOT NULL DEFAULT "",
 			"period" INTEGER NOT NULL DEFAULT 0,
 			"jam" INTEGER NOT NULL DEFAULT 0,
 			"scoreA" INTEGER NOT NULL DEFAULT 0,

@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/landru29/scoreboard/src/server/routes/games"
+	"github.com/landru29/scoreboard/src/server/routes/parameters"
 	"github.com/landru29/scoreboard/src/server/routes/players"
 	"github.com/landru29/scoreboard/src/server/routes/sockets"
 	"github.com/landru29/scoreboard/src/server/routes/teams"
@@ -43,6 +44,7 @@ func DefineRoutes() *gin.Engine {
 	players.DefineRoutes(identifiedTeamGroup)
 	sockets.DefineRoutes(router)
 	games.DefineRoutes(router)
+	parameters.DefineRoutes(router)
 
 	return router
 }

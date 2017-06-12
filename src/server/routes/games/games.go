@@ -251,7 +251,7 @@ func DefineRoutes(router *gin.Engine) (playerGroup *gin.RouterGroup) {
 				INNER JOIN team AS b ON  g.teamB = b.id
 			`)
 
-			if err != nil {
+			if database.CheckError(c, err, "Bad query") != nil {
 				return
 			}
 

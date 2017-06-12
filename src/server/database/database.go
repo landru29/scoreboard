@@ -21,63 +21,76 @@ func OpenDatabase() (db *sql.DB, err error) {
 	return
 }
 
+func execSQL(query string) (err error) {
+	table, err := Database.Prepare(query)
+	if err != nil {
+		return
+	}
+	_, err = table.Exec()
+	if err != nil {
+		return
+	}
+	return
+}
+
 //InitDatabase initialize the database
 func InitDatabase() (err error) {
 
-	teamTable, err := Database.Prepare(`CREATE TABLE IF NOT EXISTS "team" (
-		"id" INTEGER PRIMARY KEY AUTOINCREMENT,
-		"name" VARCHAR(64) NULL,
-        "color" VARCHAR(64) NULL,
-		"color_code" VARCHAR(10) NULL,
-		"logo" VARCHAR(55) NULL,
-        "created" DATETIME NULL
-    );`)
-	if err != nil {
-		return
-	}
-	_, err = teamTable.Exec()
-	if err != nil {
-		return
+	if err := execSQL(`
+		CREATE TABLE IF NOT EXISTS "team" (
+			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
+			"name" VARCHAR(64) NULL,
+			"color" VARCHAR(64) NULL,
+			"color_code" VARCHAR(10) NULL,
+			"logo" VARCHAR(55) NULL,
+			"created" DATETIME NULL
+		);
+	`); err != nil {
+		return err
 	}
 
-	playerTable, err := Database.Prepare(`CREATE TABLE IF NOT EXISTS "player" (
-		"id" INTEGER PRIMARY KEY AUTOINCREMENT,
-		"team" INTEGER,
-		"name" VARCHAR(64) NULL,
-        "number" VARCHAR(64) NULL,
-        "created" DATETIME NULL
-    );`)
-	if err != nil {
-		return
-	}
-	_, err = playerTable.Exec()
-	if err != nil {
-		return
+	if err := execSQL(`
+		CREATE TABLE IF NOT EXISTS "player" (
+			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
+			"team" INTEGER NOT NULL DEFAULT 0,
+			"name" VARCHAR(64) NULL,
+			"number" VARCHAR(64) NULL,
+			"created" DATETIME NULL
+		);
+	`); err != nil {
+		return err
 	}
 
-	gameTable, err := Database.Prepare(`CREATE TABLE IF NOT EXISTS "game" (
-		"id" INTEGER PRIMARY KEY AUTOINCREMENT,
-		"start" DATETIME NULL,
-		"end" DATETIME NULL,
-		"period" INTEGER,
-		"jam" INTEGER,
-		"scoreA" INTEGER,
-		"scoreB" INTEGER,
-		"teamTimeOutA" INTEGER,
-		"teamTimeOutB" INTEGER,
-		"officialReviewA" INTEGER,
-		"officialReviewB" INTEGER,
-		"name" VARCHAR(64) NULL,
-		"teamA" INTEGER,
-		"teamB" INTEGER,
-        "created" DATETIME NULL
-    );`)
-	if err != nil {
-		return
+	if err := execSQL(`
+		CREATE TABLE IF NOT EXISTS "game" (
+			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
+			"start" DATETIME NULL,
+			"end" DATETIME NULL,
+			"period" INTEGER NOT NULL DEFAULT 0,
+			"jam" INTEGER NOT NULL DEFAULT 0,
+			"scoreA" INTEGER NOT NULL DEFAULT 0,
+			"scoreB" INTEGER NOT NULL DEFAULT 0,
+			"teamTimeOutA" INTEGER NOT NULL DEFAULT 3,
+			"teamTimeOutB" INTEGER NOT NULL DEFAULT 3,
+			"officialReviewA" INTEGER NOT NULL DEFAULT 1,
+			"officialReviewB" INTEGER NOT NULL DEFAULT 1,
+			"name" VARCHAR(64) NULL,
+			"teamA" INTEGER NOT NULL DEFAULT 0,
+			"teamB" INTEGER NOT NULL DEFAULT 0,
+			"created" DATETIME NULL
+		);
+	`); err != nil {
+		return err
 	}
-	_, err = gameTable.Exec()
-	if err != nil {
-		return
+
+	if err := execSQL(`
+		CREATE TABLE IF NOT EXISTS "parameter" (
+			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
+			"game" INTEGER NOT NULL DEFAULT 0,
+			"created" DATETIME NULL
+		);
+	`); err != nil {
+		return err
 	}
 
 	return

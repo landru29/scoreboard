@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-md-6">
-        <h2 data-ng-bind="TeamDetailCtrl.teamTitle"></h2>
+        <h2 class="title" data-ng-bind="TeamDetailCtrl.teamTitle"></h2>
         <div class="form-group row">
                 <div class="col-md-12">
                     <label for="logo" data-ng-hide="TeamDetailCtrl.uploader.queue.length" class="btn btn-primary">Logo</label>
@@ -42,7 +42,6 @@
 
             <div class="row">
                 <div class="col-md-12">
-                    <label>Color</label>
                     <material-picker ng-model="TeamDetailCtrl.team.color_code" 
                                     data-format="'hex'"
                                     data-ng-show="TeamDetailCtrl.openColor && !TeamDetailCtrl.teamBusy"
@@ -54,13 +53,6 @@
 
             <div class="row">
                 <div class="col-md-12">
-                    <button type="submit"
-                            class="btn btn-primary"
-                            data-ng-disabled="teamForm.$invalid || TeamDetailCtrl.teamBusy">
-                        <i class="fa fa-check" aria-hidden="true"></i>
-                        <span>Save</span>
-                    </button>
-
                     <button type="button"
                             class="btn btn-warning"
                             data-ng-click="TeamDetailCtrl.deleteTeam()"
@@ -68,12 +60,17 @@
                         <i class="fa fa-trash-o" aria-hidden="true"></i>
                         <span>Delete</span>
                     </button>
-
+                    <button type="submit"
+                            class="btn btn-primary pull-right"
+                            data-ng-disabled="teamForm.$invalid || TeamDetailCtrl.teamBusy">
+                        <i class="fa fa-check" aria-hidden="true"></i>
+                        <span>Save</span>
+                    </button>
                 </div>
             </div>
         </form>
 
-        <h2 class="top-space-m32">Players</h2>
+        <h2 class="title" class="top-space-m32">Players</h2>
         <form class="row" 
               name="playerForm[{{player.id}}]"
               data-ng-repeat="player in TeamDetailCtrl.players track by player.id"
@@ -95,18 +92,18 @@
                     required>
             </div>
             <div class="col-md-2">
-                <button type="submit"
-                        class="btn btn-sm btn-primary"
-                        data-ng-disabled="playerForm[player.id].$invalid || player.saving || player.deleting"
-                        title="Save player">
-                        <i class="fa fa-floppy-o" aria-hidden="true"></i>
-                </button>
                 <button type="reset"
                         class="btn btn-sm btn-warning"
                         title="Delete player"
                         data-ng-disabled="player.saving || player.deleting"
                         data-ng-click="TeamDetailCtrl.deletePlayer(player)">
                         <i class="fa fa-trash-o" aria-hidden="true"></i>
+                </button>
+                <button type="submit"
+                        class="btn btn-sm btn-primary pull-right"
+                        data-ng-disabled="playerForm[player.id].$invalid || player.saving || player.deleting"
+                        title="Save player">
+                        <i class="fa fa-floppy-o" aria-hidden="true"></i>
                 </button>
             </div>
         </form>

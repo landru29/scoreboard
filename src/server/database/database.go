@@ -9,6 +9,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+// EmptyObj define an empty object
+type EmptyObj struct {
+}
+
 //Database is the public connection to the database
 var Database *sql.DB
 

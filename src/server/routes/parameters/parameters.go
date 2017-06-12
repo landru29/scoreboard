@@ -114,7 +114,7 @@ func getParameter() (parameter Parameter, err error) {
 		counter++
 	}
 
-	if counter == 1 {
+	if counter == 0 {
 		err = errors.New("Not found")
 	}
 
@@ -140,7 +140,7 @@ func getParameter() (parameter Parameter, err error) {
 }
 
 func createParameter(parameterIn ParameterInput) (parameter Parameter, err error) {
-	paramater, err := getParameter()
+	parameter, err = getParameter()
 	if err != nil {
 		if err.Error() != "Not found" {
 			return
@@ -149,12 +149,12 @@ func createParameter(parameterIn ParameterInput) (parameter Parameter, err error
 		// Create entry
 		stmt, err := database.Database.Prepare("INSERT INTO parameter(game, created) values(?,?)")
 		if err != nil {
-			return paramater, err
+			return parameter, err
 		}
 
 		_, err = stmt.Exec(parameterIn.Game, parameterIn.Created)
 		if err != nil {
-			return paramater, err
+			return parameter, err
 		}
 	}
 
@@ -183,8 +183,14 @@ func DefineRoutes(router *gin.Engine) (playerGroup *gin.RouterGroup) {
 		playerGroup.GET("/", func(c *gin.Context) {
 
 			parameter, err := getParameter()
-			if database.CheckError(c, err, "No parameter found") != nil {
-				return
+			if err != nil {
+				if err.Error() == "Not found" {
+					c.JSON(http.StatusOK, database.EmptyObj{})
+					return
+				}
+				if database.CheckError(c, err, "No parameter found") != nil {
+					return
+				}
 			}
 
 			c.JSON(http.StatusOK, parameter)

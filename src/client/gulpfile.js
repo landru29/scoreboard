@@ -34,7 +34,7 @@ gulp.task("copy-vendor", function () {
 
 gulp.task("copy-fonts", function () {
     return gulp
-    .src(["node_modules/bootstrap/fonts/*.{ttf,woff,woff2,eof,svg}", "node_modules/font-awesome/fonts/*.{ttf,woff,eof,svg}"])
+    .src(["node_modules/bootstrap/fonts/*.{ttf,woff,woff2,eot,otf,svg}", "node_modules/font-awesome/fonts/*.{ttf,woff,woff2,eot,otf,svg}"])
     .pipe(gulp.dest(destination + "/fonts"))
     .pipe(gulp.dest("./fonts"));
 });
@@ -117,4 +117,4 @@ gulp.task("default", function(done) {
     plugins.runSequence("clean", "build");
 });
 
-gulp.task("serve", ["watch"]);
+gulp.task("serve", ["copy-fonts", "watch"]);

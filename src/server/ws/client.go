@@ -8,26 +8,15 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/landru29/scoreboard/src/server/routes/parameters"
 	uuid "github.com/satori/go.uuid"
 )
 
 const (
-	// Time allowed to write a message to the peer.
-	writeWait = 10 * time.Second
-
-	// Time allowed to read the next pong message from the peer.
-	pongWait = 60 * time.Second
-
-	// Send pings to peer with this period. Must be less than pongWait.
-	pingPeriod = (pongWait * 9) / 10
-
-	// Maximum message size allowed from peer.
-	maxMessageSize = 512
-)
-
-var (
-	newline = []byte{'\n'}
-	space   = []byte{' '}
+	writeWait      = 10 * time.Second    // Time allowed to write a message to the peer.
+	pongWait       = 60 * time.Second    // Time allowed to read the next pong message from the peer.
+	pingPeriod     = (pongWait * 9) / 10 // Send pings to peer with this period. Must be less than pongWait.
+	maxMessageSize = 1024                // Maximum message size allowed from peer.
 )
 
 var upgrader = websocket.Upgrader{
@@ -37,32 +26,43 @@ var upgrader = websocket.Upgrader{
 
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
-	Hub *Hub
-
-	// The websocket connection.
-	Connexion *websocket.Conn
-
-	// Buffered channel of outbound messages.
-	Send chan []byte
-
-	// client UUID
-	UUID string
-
-	// Client Role
-	Role string
+	Hub       *Hub
+	Connexion *websocket.Conn // The websocket connection.
+	Send      chan []byte     // Buffered channel of outbound messages
+	UUID      string          // client UUID
+	Role      string          // Client Role
+	Offset    int64           // communication offset
 }
 
 // Command is the structure to exchange commandes
 type Command struct {
-	Name   string `json:"name"`
-	Data   string `json:"data"`
-	Origin string `json:"origin,omitempty"`
+	Name      string `json:"name"`
+	Data      string `json:"data"`
+	Origin    string `json:"origin,omitempty"`
+	Timestamp int64  `json:"timestamp,omitempty"`
+	RequestID string `json:"requestId,omitempty"`
 }
 
 // Handshake is a handshake message sent to the client
 type Handshake struct {
-	Status string `json:"status"`
-	Data   string `json:"data"`
+	Status    string `json:"status"`
+	Data      string `json:"data"`
+	Timestamp int64  `json:"timestamp,omitempty"`
+	RequestID string `json:"requestId,omitempty"`
+}
+
+func makeTimestamp() int64 {
+	return time.Now().UnixNano() / int64(time.Millisecond)
+}
+
+// NewHandshake create a handshake
+func NewHandshake(status string, data string, requestID string) Handshake {
+	return Handshake{
+		Timestamp: makeTimestamp(),
+		Status:    status,
+		Data:      data,
+		RequestID: requestID,
+	}
 }
 
 // NewClient create a newClient on a hub
@@ -70,7 +70,7 @@ func NewClient(hub *Hub, conn *websocket.Conn) *Client {
 	client := &Client{
 		Hub:       hub,
 		Connexion: conn,
-		Send:      make(chan []byte, 256),
+		Send:      make(chan []byte, 1024),
 		UUID:      uuid.NewV4().String(),
 	}
 	client.Hub.register <- client
@@ -84,6 +84,7 @@ func NewClient(hub *Hub, conn *websocket.Conn) *Client {
 // readPump pumps messages from the websocket connection to the hub.
 func (c *Client) readPump() {
 	defer func() {
+		Log("Closing websocket")
 		c.Hub.unregister <- c
 		c.Connexion.Close()
 	}()
@@ -106,9 +107,6 @@ func (c *Client) readPump() {
 			break
 		}
 
-		fmt.Printf("Raw: %v", message)
-		//Log("Raw " + string(message))
-
 		var command Command
 		err = json.Unmarshal(message, &command)
 		if err != nil {
@@ -120,13 +118,43 @@ func (c *Client) readPump() {
 		command.Origin = c.UUID
 
 		// Here are the processing of commands
-
-		if c.Hub.BroadcastObject(command) != nil {
-			c.SendObject(Handshake{
-				Status: "error",
-				Data:   "Cannot echo the command to all clients",
-			})
+		switch command.Name {
+		case "sync":
+			c.Offset = makeTimestamp() - command.Timestamp
+			c.Hub.BroadcastObject(NewHandshake("sync", fmt.Sprintf("{\"offset\":%d,\"clientTimestamp\":%d}", c.Offset, command.Timestamp), command.RequestID))
+		case "whoami":
+			c.SendObject(NewHandshake("whoami", fmt.Sprintf("{\"uuid\":\"%s\"}", c.UUID), command.RequestID))
+		case "startjam":
+			fmt.Printf("Start Jam\n")
+		case "stopJam":
+			fmt.Printf("Stop Jam\n")
+		case "startTimeout":
+			fmt.Printf("Start timeout\n")
+		case "stopTimeout":
+			fmt.Printf("Stop timeout\n")
+		case "updateScore":
+			fmt.Printf("Update Score\n")
+		case "adjustChronometer":
+			fmt.Printf("Adjust chronometere\n")
+		case "adjustJam":
+			fmt.Printf("Ajust jam\n")
+		case "adjustPeriod":
+			fmt.Printf("Adjust period\n")
+		case "getGameParameters":
+			parameter, err := parameters.GetParameter()
+			if err != nil {
+				c.SendObject(NewHandshake("error", err.Error(), command.RequestID))
+				break
+			}
+			data, err := json.Marshal(parameter)
+			if err != nil {
+				c.SendObject(NewHandshake("error", err.Error(), command.RequestID))
+				break
+			}
+			fmt.Printf("%s\n", string(data))
+			c.Hub.BroadcastObject(NewHandshake("getGameParameters", string(data), command.RequestID))
 		}
+
 	}
 }
 
@@ -138,7 +166,8 @@ func (c *Client) SendMessage(message []byte) (err error) {
 	if err != nil {
 		return
 	}
-	Log("Write message " + strconv.FormatInt(int64(len(message)), 10) + "bytes")
+	Log("Will send " + strconv.FormatInt(int64(len(message)), 10) + " bytes")
+	Log("Write message " + string(message))
 	w.Write(message)
 
 	err = w.Close()
@@ -151,27 +180,16 @@ func (c *Client) SendMessage(message []byte) (err error) {
 
 // SendObject send an object as json
 func (c *Client) SendObject(obj interface{}) (err error) {
-	data, err := json.Marshal(obj)
-	if err == nil {
-		return c.SendMessage(data)
+	bytesToSend, err := json.Marshal(obj)
+	if err != nil {
+		bytesToSend = []byte("{\"status\":\"error\",\"data\":\"Could not convert response to JSON\"}")
 	}
-
+	c.Send <- bytesToSend
 	return
 }
 
 // writePump pumps messages from the hub to the websocket connection.
 func (c *Client) writePump() {
-	command := Command{
-		Name:   "SetUuid",
-		Data:   c.UUID,
-		Origin: "SERVER",
-	}
-	data, err := json.Marshal(command)
-	if err != nil {
-		c.SendMessage([]byte("{\"status\":\"fatal\"}"))
-	} else {
-		c.SendMessage(data)
-	}
 
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
@@ -181,30 +199,14 @@ func (c *Client) writePump() {
 	for {
 		select {
 		case message, ok := <-c.Send:
-			c.Connexion.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
 				// The hub closed the channel.
-				c.Connexion.WriteMessage(websocket.CloseMessage, []byte{})
+				c.SendMessage([]byte("{\"status\":\"error\",\"data\":\"Could not transfer the message\"}"))
 				return
 			}
 
-			w, err := c.Connexion.NextWriter(websocket.TextMessage)
-			if err != nil {
-				return
-			}
-			Log("Write message " + strconv.FormatInt(int64(len(message)), 10) + "bytes")
-			w.Write(message)
+			c.SendMessage(message)
 
-			// Add queued chat messages to the current websocket message.
-			n := len(c.Send)
-			for i := 0; i < n; i++ {
-				w.Write(newline)
-				w.Write(<-c.Send)
-			}
-
-			if err := w.Close(); err != nil {
-				return
-			}
 		case <-ticker.C:
 			c.Connexion.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.Connexion.WriteMessage(websocket.PingMessage, []byte{}); err != nil {

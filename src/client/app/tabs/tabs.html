@@ -1,4 +1,4 @@
-<uib-tabset active="TabsCtrl.active">
+<uib-tabset active="TabsCtrl.active" data-ng-show="TabsCtrl.headerVisible">
     <uib-tab index="$index"
              ng-click="TabsCtrl.go(tab.state)"
              data-ng-repeat="tab in TabsCtrl.tabs track by $index">

@@ -13,14 +13,14 @@ type Game struct {
 	Start           string     `json:"start,omitempty"`
 	End             string     `json:"end,omitempty"`
 	Name            string     `json:"name,omitempty"`
-	Period          int64      `json:"period,omitempty"`
-	Jam             int64      `json:"jam,omitempty"`
-	ScoreA          int64      `json:"scoreA,omitempty"`
-	ScoreB          int64      `json:"scoreB,omitempty"`
-	TeamTimeOutA    int64      `json:"teamTimeOutA,omitempty"`
-	TeamTimeOutB    int64      `json:"teamTimeOutB,omitempty"`
-	OfficialReviewA int64      `json:"officialReviewA,omitempty"`
-	OfficialReviewB int64      `json:"officialReviewB,omitempty"`
+	Period          int64      `json:"period"`
+	Jam             int64      `json:"jam"`
+	ScoreA          int64      `json:"scoreA"`
+	ScoreB          int64      `json:"scoreB"`
+	TeamTimeOutA    int64      `json:"teamTimeOutA"`
+	TeamTimeOutB    int64      `json:"teamTimeOutB"`
+	OfficialReviewA int64      `json:"officialReviewA"`
+	OfficialReviewB int64      `json:"officialReviewB"`
 	TeamA           teams.Team `json:"teamA,omitempty"`
 	TeamB           teams.Team `json:"teamB,omitempty"`
 	Created         string     `json:"created,omitempty"`

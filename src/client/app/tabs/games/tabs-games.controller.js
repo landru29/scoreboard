@@ -33,10 +33,10 @@ angular.module("scoreboard").controller("GameCtrl", function GameCtrl ($q, $scop
     this.saveParameters = function () {
         this.parameterBusy = true;
         return Parameters.update(null, {
-            game: _.get(this.parameters, "tmpGame.id")
+            game: _.get(this.tmpParameter, "game.id")
         }).$promise.then(function (result) {
             toaster.pop({ type: "success", title: "Game Parameters updated"});
-            self.parameters.game = self.tmpGame;
+            self.parameters.game = self.tmpParameter.game;
             return result;
         })["finally"](function() {
             self.parameterBusy = false;

@@ -26,6 +26,7 @@
     "lodash": "^4.17.4",
     "angular-ui-router": "^1.0.4",
     "angular-ui-select": "^0.19.8",
-    "angular-sanitize": "^1.6.4"
+    "angular-sanitize": "^1.6.4",
+    "moment": "momentjs#^2.18.1"
   }
 }

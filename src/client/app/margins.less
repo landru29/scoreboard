@@ -1,0 +1,47 @@
+@space-value : 0, 4, 8, 12, 16, 20, 32;
+@space-class : 'top', 'bottom', 'left', 'right';
+
+.space-fn(@space-media : -, @i: length(@space-value)) when (@i > 0) {
+    @spaceValue : e(extract(@space-value, @i));
+
+    .space@{space-media}m@{spaceValue} {
+        margin : ~"@{spaceValue}px" !important;
+    }
+    .space@{space-media}p@{spaceValue} {
+        padding :  ~"@{spaceValue}px" !important;
+    }
+
+    .space-class-fn(@j: length(@space-class)) when (@j > 0) {
+        @spaceClass : e(extract(@space-class, @j));
+
+        .@{spaceClass}-space@{space-media}m@{spaceValue} {
+            margin-@{spaceClass} :  ~"@{spaceValue}px" !important;
+        }
+        .@{spaceClass}-space@{space-media}p@{spaceValue} {
+            padding-@{spaceClass} :  ~"@{spaceValue}px" !important;
+        }
+
+        .space-class-fn(@j - 1);
+    }
+    .space-class-fn();
+
+    .space-fn(@space-media, @i - 1);
+}
+
+.space-fn();
+
+/*@media (max-width: @screen-xs-max) {
+    .space-fn(-xs-);
+}
+
+@media (min-width: @screen-sm-min) {
+    .space-fn(-sm-);
+}
+
+@media (min-width: @screen-md-min) {
+    .space-fn(-md-);
+}
+
+@media (min-width: @screen-lg-min) {
+    .space-fn(-lg-);
+}*/

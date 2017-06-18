@@ -26,8 +26,12 @@ angular.module("scoreboard").controller("TabsCtrl", function TabsCtrl ($scope, $
      * Initialization of the controller
      */
     this.$onInit = function () {
+        this.headerVisible = true;
         this.tabs = TABS.tabs;
         this.setTab($state.current);
+        $scope.$on("toggle-header", function () {
+            self.headerVisible = !self.headerVisible;
+        });
     };
 
 });

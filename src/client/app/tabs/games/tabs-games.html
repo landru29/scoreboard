@@ -21,7 +21,7 @@
         <form data-ng-submit="GameCtrl.saveParameters()" name="parametersForm" data-ng-if="GameCtrl.games.length">
             <div class="row">
                 <div class="col-md-6">
-                    <ui-select ng-model="GameCtrl.tmpGame" theme="bootstrap" name="currentGame">
+                    <ui-select ng-model="GameCtrl.tmpParameter.game" theme="bootstrap" name="currentGame">
                         <ui-select-match placeholder="Select or search a game in the list...">{{$select.selected.name}}</ui-select-match>
                         <ui-select-choices repeat="game in GameCtrl.games | filter: $select.search">
                             <div ng-bind-html="game.name | highlight: $select.search"></div>
@@ -51,7 +51,7 @@
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <button data-ng-if="GameCtrl.tmpGame" type="submit" class="btn btn-primary pull-right" data-ng-disabled="parametersForm.$invalid || GameCtrl.parameterBusy">
+                    <button data-ng-if="GameCtrl.tmpParameter.game" type="submit" class="btn btn-primary pull-right" data-ng-disabled="parametersForm.$invalid || GameCtrl.parameterBusy">
                         <i class="fa fa-check" aria-hidden="true"></i>
                         <span>Update</span>
                     </button>

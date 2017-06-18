@@ -27,6 +27,12 @@
 
 <body data-ng-app="scoreboard">
     <div class="container-fluid">
+        <button type="button"
+                class="btn btn-sm btn-primary pull-left top-space-m8"
+                data-ng-click="$broadcast('toggle-header'); headerDisplay = !headerDisplay">
+                <span data-ng-if="headerDisplay">Display header</span>
+                <span data-ng-if="!headerDisplay">Hide header</span>
+        </button>
         <h1 class="text-center">Scoreboard</h1>
         <toaster-container toaster-options="{'close-button':false, 'time-out':{ 'toast-success': 2000, 'toast-warning': 2000, 'toast-error': 0 } }"></toaster-container>
         <div ui-view="mainView"></div>

@@ -1,5 +1,18 @@
 <div class="row">
     <div class="col-md-6">
+
+        <div class="row" data-ng-if="TeamDetailCtrl.teamCount === 1">
+            <div class="col-md-12">
+                <a data-ui-sref="main.tabs.teams.add()">You need to create a second team in order to create a game</a>
+            </div>
+        </div>
+
+        <div class="row" data-ng-if="TeamDetailCtrl.teamCount === 2">
+            <div class="col-md-12">
+                <a data-ui-sref="main.tabs.games.add()">You can, now, create a game</a>
+            </div>
+        </div>
+
         <h2 class="title" data-ng-bind="TeamDetailCtrl.teamTitle"></h2>
         <div class="form-group row">
                 <div class="col-md-12">

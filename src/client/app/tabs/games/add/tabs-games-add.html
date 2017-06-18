@@ -1,5 +1,5 @@
 <h2 class="title">New Game</h2>
-<form name="gameForm" data-ng-submit="GameAddCtrl.addGame()">
+<form name="gameForm" data-ng-submit="GameAddCtrl.addGame()" data-ng-if="GameAddCtrl.teams.length>1">
     <div class="form-group row">
         <div class="col-md-6">
             <label for="name">Name</label>
@@ -10,9 +10,9 @@
     <div class="form-group row">
         <div class="col-md-6">
             <label for="teamA">Team 1 <span class="label" style="background-color: {{ GameAddCtrl.game.teamA.color_code }}" ng-bind-html="GameAddCtrl.game.teamA.color || ' '"></span></label>
-            <ui-select ng-model="GameAddCtrl.game.teamA" theme="bootstrap" name="teamA">
+            <ui-select ng-model="GameAddCtrl.game.teamA" theme="bootstrap" name="teamA" on-select="GameAddCtrl.teamSelect('teamB', $item)">
                 <ui-select-match placeholder="Select or search a team in the list...">{{$select.selected.name}}</ui-select-match>
-                <ui-select-choices repeat="team in GameAddCtrl.teams | filter: $select.search">
+                <ui-select-choices repeat="team in GameAddCtrl.teamPoolA | filter: $select.search">
                 <div ng-bind-html="team.name | highlight: $select.search"></div>
                 <span class="label" style="background-color: {{ team.color_code }}" ng-bind-html="team.color | highlight: $select.search"></span>
                 </ui-select-choices>
@@ -23,9 +23,9 @@
     <div class="form-group row">
         <div class="col-md-6">
             <label for="teamB">Team 2 <span class="label" style="background-color: {{ GameAddCtrl.game.teamB.color_code }}" ng-bind-html="GameAddCtrl.game.teamA.color || ' '"></span></label>
-            <ui-select ng-model="GameAddCtrl.game.teamB" theme="bootstrap" name="teamB">
+            <ui-select ng-model="GameAddCtrl.game.teamB" theme="bootstrap" name="teamB" on-select="GameAddCtrl.teamSelect('teamA', $item)">
                 <ui-select-match placeholder="Select or search a team in the list...">{{$select.selected.name}}</ui-select-match>
-                <ui-select-choices repeat="team in GameAddCtrl.teams | filter: $select.search">
+                <ui-select-choices repeat="team in GameAddCtrl.teamPoolB | filter: $select.search">
                 <div ng-bind-html="team.name | highlight: $select.search"></div>
                 <span class="label" style="background-color: {{ team.color_code }}" ng-bind-html="team.color | highlight: $select.search"></span>
                 </ui-select-choices>
@@ -42,3 +42,8 @@
         </div>
     </div>
 </form>
+<div class="row" data-ng-if="GameAddCtrl.teams.length<2">
+    <div class="col-md-12">
+        <a ui-sref="main.tabs.teams.add()">You first need to create almost 2 teams</a>
+    </div>
+</div>

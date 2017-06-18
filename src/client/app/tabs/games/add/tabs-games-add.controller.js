@@ -10,7 +10,18 @@ angular.module("scoreboard").controller("GameAddCtrl", function GameAddCtrl ($sc
     this.loadTeams = function () {
         return Team.list().$promise.then(function (teams) {
             self.teams = teams;
+            self.teamPoolA = teams;
+            self.teamPoolB = teams;
             return teams;
+        });
+    };
+
+    this.teamSelect = function (team) {
+        this.teamPoolA = _.filter(this.teams, function (team) {
+            return team.id !== _.get(self.game, "teamB.id");
+        });
+        this.teamPoolB = _.filter(this.teams, function (team) {
+            return team.id !== _.get(self.game, "teamA.id");
         });
     };
 

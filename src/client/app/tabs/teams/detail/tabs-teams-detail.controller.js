@@ -21,6 +21,17 @@ angular.module("scoreboard").controller("TeamDetailCtrl", function TeamDetailCtr
     };
 
     /**
+     * Get the number of teams
+     * @return {Promise}
+     */
+    this.getTeamCount = function () {
+        return Team.list().$promise.then(function (teams) {
+            self.teamCount = teams.length;
+            return teams;
+        });
+    };
+
+    /**
      * Get all the players
      * @return {Promise}
      */
@@ -176,7 +187,8 @@ angular.module("scoreboard").controller("TeamDetailCtrl", function TeamDetailCtr
         });
         return $q.all([
             this.getTeamDetail(),
-            this.getPlayers()
+            this.getPlayers(),
+            this.getTeamCount()
         ]);
     };
 });

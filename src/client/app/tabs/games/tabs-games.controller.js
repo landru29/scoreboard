@@ -21,7 +21,7 @@ angular.module("scoreboard").controller("GameCtrl", function GameCtrl ($q, $scop
     this.loadGameParameters = function () {
         return Parameters.read().$promise.then(function (parameters) {
             self.parameters = parameters;
-            self.parameters.game = _.find(self.games, { id: self.parameters.game.id });
+            self.parameters.game = _.find(self.games, { id: _.get(self.parameters, "game.id") });
             return parameters;
         });
     };
@@ -33,9 +33,10 @@ angular.module("scoreboard").controller("GameCtrl", function GameCtrl ($q, $scop
     this.saveParameters = function () {
         this.parameterBusy = true;
         return Parameters.update(null, {
-            game: this.parameters.game.id
+            game: _.get(this.parameters, "tmpGame.id")
         }).$promise.then(function (result) {
             toaster.pop({ type: "success", title: "Game Parameters updated"});
+            self.parameters.game = self.tmpGame;
             return result;
         })["finally"](function() {
             self.parameterBusy = false;

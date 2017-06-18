@@ -1,17 +1,18 @@
-angular.module("scoreboard").controller("TabsCtrl", function TabsCtrl ($scope, TABS, $state) {
+angular.module("scoreboard").controller("TabsCtrl", function TabsCtrl ($scope, $transitions, TABS, $state) {
     "use strict";
+    var self = this;
 
     this.go = function (state) {
         return $state.go(state);
     }
 
-    /**
-     * Initialization of the controller
-     */
-    this.$onInit = function () {
-        this.tabs = TABS.tabs;
+    $transitions.onSuccess({}, function () {
+        self.setTab($state.current);
+    });
+
+    this.setTab = function (state) {
         var tabName;
-        var matcher = $state.current.name.match(/^(main\.tabs\.[\w]*)/);
+        var matcher = state.name.match(/^(main\.tabs\.[\w]*)/);
         if (matcher) {
             tabName = matcher[1];
         }
@@ -19,6 +20,14 @@ angular.module("scoreboard").controller("TabsCtrl", function TabsCtrl ($scope, T
         if (tabIndex > -1) {
             this.active = tabIndex
         }
+    }
+
+    /**
+     * Initialization of the controller
+     */
+    this.$onInit = function () {
+        this.tabs = TABS.tabs;
+        this.setTab($state.current);
     };
 
 });

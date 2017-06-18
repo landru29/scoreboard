@@ -1,21 +1,33 @@
 <h2 class="title">Board</h2>
-<!-- TEAMS -->
-<div class="row">
-    <div class="col-md-6">
-        <!-- TEAM1 -->
-    </div>
-    <div class="col-md-6">
-        <!-- TEAM2 -->
+<div data-ng-if="BoardCtrl.errors.length">
+    <div class="row" data-ng-repeat="error in BoardCtrl.errors">
+        <div class="col-md-6">
+            <a data-ui-sref="main.tabs.games()">
+                <i class="fa fa-trophy" aria-hidden="true"></i>
+                <span>Please select a game</span>
+            </a>
+        </div>
     </div>
 </div>
-<!-- CHRONOMETERS -->
-<div class="row">
-    <div class="col-md-6">
-        <!-- PERIOD -->
-
+<div data-ng-if="BoardCtrl.errors.length === 0">
+    <!-- TEAMS -->
+    <div class="row">
+        <div class="col-md-6">
+            <!-- TEAM1 -->
+        </div>
+        <div class="col-md-6">
+            <!-- TEAM2 -->
+        </div>
     </div>
-    <div class="col-md-6">
-        <!-- JAM -->
+    <!-- CHRONOMETERS -->
+    <div class="row">
+        <div class="col-md-6">
+            <!-- PERIOD -->
 
+        </div>
+        <div class="col-md-6">
+            <!-- JAM -->
+
+        </div>
     </div>
 </div>

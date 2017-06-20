@@ -21,7 +21,7 @@ func DefineRoutes(router *gin.Engine) (playerGroup *gin.RouterGroup) {
 			parameter, err := GetParameter()
 			if err != nil {
 				if err.Error() == "Not found" {
-					c.JSON(http.StatusOK, database.EmptyObj{})
+					c.JSON(http.StatusNotFound, database.EmptyObj{})
 					return
 				}
 				if database.CheckError(c, err, "No parameter found") != nil {

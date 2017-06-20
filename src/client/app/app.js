@@ -42,3 +42,7 @@ angular.module("scoreboard").config(function(WsProvider) {
 angular.module("scoreboard").run(function($rootScope, Ws) {
     Ws.registerScope($rootScope);
 });
+
+angular.module("scoreboard").config(function($qProvider) {
+    $qProvider.errorOnUnhandledRejections(false);
+});

@@ -30,6 +30,7 @@ func checkGame(id int64) (err error) {
 	return
 }
 
+// GetParameter gets the game parameters
 func GetParameter() (parameter Parameter, err error) {
 	counter := 0
 	firstID := int64(-1)

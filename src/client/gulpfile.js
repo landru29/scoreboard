@@ -25,8 +25,13 @@ function string_src(filename, string) {
 }
 
 
-gulp.task("clean", function () {
+gulp.task("clean-dist", function () {
     return gulp.src(destination, { read: false })
+        .pipe(plugins.clean({ force: true }));
+});
+
+gulp.task("clean-dev", function () {
+    return gulp.src(dev, { read: false })
         .pipe(plugins.clean({ force: true }));
 });
 
@@ -133,7 +138,7 @@ gulp.task("copy-bower-deps", function() {
 
 gulp.task("watch", ["inject-dev-js", "less"], function () {
     plugins.livereload.listen();
-    gulp.watch("./app/**/*.{js,less}", ["inject-dev-js", "less"])
+    gulp.watch("./app/**/*.{js,less}", ["inject-dev-js", "less", "babel"])
 });
 
 gulp.task("build", [
@@ -150,7 +155,7 @@ gulp.task("build", [
 ]);
 
 gulp.task("default", function(done) {
-    plugins.runSequence("clean", "build");
+    plugins.runSequence("clean-dev", "clean-dist", "build");
 });
 
 gulp.task("serve", ["build", "watch"]);

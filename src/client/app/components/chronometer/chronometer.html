@@ -2,15 +2,18 @@
     <div data-ng-bind="$ctrl.chrono.time | chronometer"></div>
     <div>
         <button class="btn btn-danger"
+                data-ng-click="$ctrl.stop()"
                 type="button">
             <i class="fa fa-stop" aria-hidden="true"></i>
         </button>
          <button class="btn btn-warning"
-                type="button">
+                 data-ng-click="$ctrl.pause()"
+                 type="button">
             <i class="fa fa-pause" aria-hidden="true"></i>
         </button>
          <button class="btn btn-success"
-                type="button">
+                 data-ng-click="$ctrl.start()"
+                 type="button">
             <i class="fa fa-play" aria-hidden="true"></i>
         </button>
     </div>

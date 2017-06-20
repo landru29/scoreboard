@@ -16,8 +16,21 @@ angular.module("scoreboard").component("chronometer", {
             this.format = this.format || "HH:mm";
             this.chrono = new ChronometerFactory({
                 init: this.init,
-                id: this.id
+                id: this.id,
+                countdown: !!this.countdown
             });
+        };
+
+        this.stop = function () {
+            this.chrono.stop();
+        };
+
+        this.pause = function () {
+            this.chrono.pause();
+        };
+
+        this.start = function () {
+            this.chrono.start();
         };
     }
 });

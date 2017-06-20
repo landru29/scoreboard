@@ -54,4 +54,4 @@ Launch client
 cd src/client
 gulp serve
 ```
-and open your browser [http://localhost:3000/scoreboard/dev.html]
+and open your browser [http://localhost:3000/scoreboard/dev]

@@ -5,6 +5,4 @@ dist
 bower_components
 node_modules
 src/server/server
-src/client/style/main.css
-src/client/fonts
-src/client/dev.html
+src/client/dev
